@@ -35,6 +35,9 @@
                     document.getElementById(`form_${id}`).submit();
                 }
             }
-</script>
+        </script>
+        <div class="footer">
+                    <a href="/">戻る</a>
+                </div>
     </body>
 </html>
