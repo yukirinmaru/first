@@ -8,16 +8,34 @@ use App\Http\Requests\PostRequest; // useする
 
 class PostController extends Controller
 {
-    public function index(Post $post)//インポートしたPostをインスタンス化して$postとして使用。
+   public function index(Post $post)
     {
-        return view('posts.index')->with(['posts' => $post->getPaginateByLimit()]);//$postの中身を戻り値にする。
-    }
-    /**
- * 特定IDのpostを表示する
- *
- * @params Object Post // 引数の$postはid=1のPostインスタンス
- * @return Reposnse post view
- */
+        // クライアントインスタンス生成
+        $client = new \GuzzleHttp\Client();
+
+        // GET通信するURL
+        $url = 'https://teratail.com/api/v1/questions';
+
+        // リクエスト送信と返却データの取得
+        // Bearerトークンにアクセストークンを指定して認証を行う
+        $response = $client->request(
+            'GET',
+            $url,
+            ['Bearer' => config('services.teratail.token')]
+        );
+        
+        // API通信で取得したデータはjson形式なので
+        // PHPファイルに対応した連想配列にデコードする
+        $questions = json_decode($response->getBody(), true);
+        
+        // index bladeに取得したデータを渡す
+        return view('posts.index')->with([
+            'posts' => $post->getPaginateByLimit(),
+            'questions' => $questions['questions'],
+        ]);
+        
+     }
+    
     public function show(Post $post)
     {
         return view('posts.show')->with(['post' => $post]);
